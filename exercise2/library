@@ -1,0 +1,171 @@
+mysql> create database library;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> use library;
+Database changed
+mysql> create table Branch(BCode varchar(4) not null,
+    -> Librarian varchar(20) not null,
+    -> Address varchar(30) not null,
+    -> PRIMARY KEY(BCode));
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> show columns from Branch;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| BCode     | varchar(4)  | NO   | PRI | NULL    |       |
+| Librarian | varchar(20) | NO   |     | NULL    |       |
+| Address   | varchar(30) | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into Branch values('B1','John Smith','2 Anglesea Rd'),
+    -> ('B2','Mary Jones','34 Pearse St'),
+    -> ('B3','Francis Owens','Grange X');
+Query OK, 3 rows affected (0.39 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from Branch;
++-------+---------------+---------------+
+| BCode | Librarian     | Address       |
++-------+---------------+---------------+
+| B1    | John Smith    | 2 Anglesea Rd |
+| B2    | Mary Jones    | 34 Pearse St  |
+| B3    | Francis Owens | Grange X      |
++-------+---------------+---------------+
+3 rows in set (0.00 sec)
+
+mysql> create table Titles(Title varchar(20) not null,
+    -> Author varchar(20) not null ,
+    -> Publisher varchar(20) not null,
+    -> PRIMARY KEY(Title));
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> show columns from  Titles;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| Title     | varchar(20) | NO   | PRI | NULL    |       |
+| Author    | varchar(20) | NO   |     | NULL    |       |
+| Publisher | varchar(20) | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into Titles values('Susannah','Ann Brown','Macmillan'),
+    -> ('How to Fish','Amy Fly','Stop Press'),
+    -> ('A History of Dublin','David Little','Wiley'),
+    -> ('Computers','Blaise Pascal','Applewoods'),
+    -> ('The Wife','Ann Brown','Macmillan');
+Query OK, 5 rows affected (0.05 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select * from Titles;
++---------------------+---------------+------------+
+| Title               | Author        | Publisher  |
++---------------------+---------------+------------+
+| A History of Dublin | David Little  | Wiley      |
+| Computers           | Blaise Pascal | Applewoods |
+| How to Fish         | Amy Fly       | Stop Press |
+| Susannah            | Ann Brown     | Macmillan  |
+| The Wife            | Ann Brown     | Macmillan  |
++---------------------+---------------+------------+
+5 rows in set (0.00 sec)
+
+
+mysql> create table Holdings ( branch varchar(4),
+    -> Title varchar(20),
+    -> `#copies` TINYINT unsigned not null,
+    -> PRIMARY KEY(branch, Title),
+    -> FOREIGN KEY(branch) References Branch(BCode),
+    -> FOREIGN KEY(Title) References Titles(Title));
+
+mysql> DESCRIBE Holdings;
++---------+---------------------+------+-----+---------+-------+
+| Field   | Type                | Null | Key | Default | Extra |
++---------+---------------------+------+-----+---------+-------+
+| branch  | varchar(4)          | NO   | PRI |         |       |
+| Title   | varchar(20)         | NO   | PRI |         |       |
+| #copies | tinyint(3) unsigned | NO   |     | NULL    |       |
++---------+---------------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into Holdings values('B1','Susannah',3),
+    -> ('B1','How to Fish',2),
+    -> ('B1','A History of Dublin',1),
+    -> ('B2','How to Fish',4),
+    -> ('B2','Computers',2),
+    -> ('B2','The Wife',3),
+    -> ('B3','A History of Dublin',1),
+    -> ('B3','Computers',4),
+    -> ('B3','Susannah',3),
+    -> ('B3','The Wife',1);
+Query OK, 10 rows affected (0.04 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> select * from Holdings;
++--------+---------------------+---------+
+| branch | title               | #copies |
++--------+---------------------+---------+
+| B1     | A History of Dublin |       1 |
+| B1     | How to Fish         |       2 |
+| B1     | Susannah            |       3 |
+| B2     | Computers           |       2 |
+| B2     | How to Fish         |       4 |
+| B2     | The Wife            |       3 |
+| B3     | A History of Dublin |       1 |
+| B3     | Computers           |       4 |
+| B3     | Susannah            |       3 |
+| B3     | The Wife            |       1 |
++--------+---------------------+---------+
+10 rows in set (0.00 sec)
+e) );
+Query OK, 0 rows affected (0.17 sec)
+
+mysql> SELECT Title from Titles 
+    -> WHERE Publisher = 'Macmillan';
++----------+
+| Title    |
++----------+
+| Susannah |
+| The Wife |
++----------+
+2 rows in set (0.00 sec)
+
+
+mysql> select distinct branch from Holdings where title in (select Title from Titles where Author='Ann Brown');
++--------+
+| branch |
++--------+
+| B1     |
+| B2     |
+| B3     |
++--------+
+3 rows in set (0.00 sec)
+
+
+mysql> select distinct  Holdings.branch from Holdings JOIN Titles  WHERE Holdings.title = Titles.title AND Author = 'Ann Brown';
++--------+
+| branch |
++--------+
+| B1     |
+| B3     |
+| B2     |
++--------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT branch,count(*) as  'Number OF books' from Holdings group by branch;
++--------+-----------------+
+| branch | Number OF books |
++--------+-----------------+
+| B1     |               3 |
+| B2     |               3 |
+| B3     |               4 |
++--------+-----------------+
+3 rows in set (0.00 sec)
+
+
+
+
+
+
+

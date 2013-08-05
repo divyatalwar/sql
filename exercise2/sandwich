@@ -1,0 +1,156 @@
+mysql> create database sandwich;
+Query OK, 1 row affected (0.03 sec)
+
+mysql> use sandwich;
+Database changed
+mysql> create table TASTES ( Name varchar(20) not null ,
+    -> Filling varchar(20) not null ,
+    -> PRIMARY KEY(Name,Filling));
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show columns from TASTES;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| Name    | varchar(20) | NO   | PRI | NULL    |       |
+| Filling | varchar(20) | NO   | PRI | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> insert into TASTES values('Brown','Turkey'),
+    -> ('Brown','Beef'),
+    -> ('Brown','Ham'),
+    -> ('Jones','Cheese'),
+    -> ('Green','Beef'),
+    -> ('Green','Turkey'),
+    -> ('Green','Cheese');
+Query OK, 7 rows affected (0.05 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> select * from TASTES;
++-------+---------+
+| Name  | Filling |
++-------+---------+
+| Brown | Beef    |
+| Brown | Ham     |
+| Brown | Turkey  |
+| Green | Beef    |
+| Green | Cheese  |
+| Green | Turkey  |
+| Jones | Cheese  |
++-------+---------+
+7 rows in set (0.00 sec)
+
+mysql> create table LOCATIONS(LName varchar(20) not null ,
+    -> Phone int(7) not null ,
+    -> Address varchar(30) not null ,
+    -> PRIMARY KEY(LName));
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> show columns from LOCATIONS;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| LName   | varchar(20) | NO   | PRI | NULL    |       |
+| Phone   | int(7)      | NO   |     | NULL    |       |
+| Address | varchar(30) | NO   |     | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into LOCATIONS values("Lincoln","6834523","Lincoln Place"), 
+    -> ("O'Neill's","6742134","Pearse St"),
+    -> ("Old Nag","7678132","Dame St"),
+    -> ("Buttery","7023421","College St");
+Query OK, 4 rows affected (0.04 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+
+mysql> select * from LOCATIONS;
++-----------+---------+---------------+
+| LName     | Phone   | Address       |
++-----------+---------+---------------+
+| Buttery   | 7023421 | College St    |
+| Lincoln   | 6834523 | Lincoln Place |
+| O'Neill's | 6742134 | Pearse St     |
+| Old Nag   | 7678132 | Dame St       |
++-----------+---------+---------------+
+4 rows in set (0.00 sec)
+
+mysql> create table SANDWICHES(Location varchar(30) not null,
+    -> Bread varchar(20) not null,
+    -> Filling varchar(20) not null,
+    -> Price decimal(3,2) ,
+    -> PRIMARY KEY(Location,Bread,Filling),
+    -> FOREIGN KEY(Location) REFERENCES LOCATIONS(Lname));
+Query OK, 0 rows affected (0.55 sec)
+
+mysql> show columns from SANDWICHES;
++----------+--------------+------+-----+---------+-------+
+| Field    | Type         | Null | Key | Default | Extra |
++----------+--------------+------+-----+---------+-------+
+| Location | varchar(30)  | NO   | PRI | NULL    |       |
+| Bread    | varchar(20)  | NO   | PRI | NULL    |       |
+| Filling  | varchar(20)  | NO   | PRI | NULL    |       |
+| Price    | decimal(3,2) | YES  |     | NULL    |       |
++----------+--------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> insert into SANDWICHES values("Lincoln","Rye","Ham",1.25),
+    -> ("O'Neill's","White","Cheese",1.20),
+    -> ("O'Neill's","Whole","Ham",1.25),
+    -> ("Old Nag","Rye","Beef",1.35),
+    -> ("Buttery","White","Cheese",1.00),
+    -> ("O'Neill's","White","Turkey",1.35), 
+    -> ("Buttery","White","Ham",1.10),
+    -> ("Lincoln","Rye","Beef",1.35),
+    -> ("Lincoln","White","Ham",1.30),
+    -> ("Old Nag","Rye","Ham",1.40);
+Query OK, 10 rows affected (0.06 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> select * from SANDWICHES;
++-----------+-------+---------+-------+
+| Location  | Bread | Filling | Price |
++-----------+-------+---------+-------+
+| Buttery   | White | Cheese  |  1.00 |
+| Buttery   | White | Ham     |  1.10 |
+| Lincoln   | Rye   | Beef    |  1.35 |
+| Lincoln   | Rye   | Ham     |  1.25 |
+| Lincoln   | White | Ham     |  1.30 |
+| O'Neill's | White | Cheese  |  1.20 |
+| O'Neill's | White | Turkey  |  1.35 |
+| O'Neill's | Whole | Ham     |  1.25 |
+| Old Nag   | Rye   | Beef    |  1.35 |
+| Old Nag   | Rye   | Ham     |  1.40 |
++-----------+-------+---------+-------+
+10 rows in set (0.00 sec)
+
+mysql> select location from SANDWICHES where Filling in (select Filling from TASTES where Name = "Jones");
++-----------+
+| location  |
++-----------+
+| Buttery   |
+| O'Neill's |
++-----------+
+2 rows in set (0.00 sec)
+
+mysql> select  distinct location from SANDWICHES NATURAL JOIN TASTES  where TASTES.Name = "Jones";
++-----------+
+| location  |
++-----------+
+| Buttery   |
+| O'Neill's |
++-----------+
+2 rows in set (0.00 sec)
+
+mysql> select  count(distinct Name) as Name ,location from SANDWICHES NATURAL JOIN TASTES  group by location;
++------+-----------+
+| Name | location  |
++------+-----------+
+|    3 | Buttery   |
+|    2 | Lincoln   |
+|    3 | O'Neill's |
+|    2 | Old Nag   |
++------+-----------+
+4 rows in set (0.00 sec)
+
