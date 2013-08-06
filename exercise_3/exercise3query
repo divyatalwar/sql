@@ -1,0 +1,71 @@
+//select all articles whose author is user3.
+
+mysql> select article.name from article join user on article.userId=user.id and user.name='user3';
++------------------+
+| name             |
++------------------+
+| aam aadmi party  |
+| women empowermnt |
++------------------+
+2 rows in set (0.00 sec)
+
+//For all the articles being selected above, select all the articles and also the comments associated with those articles in a single query
+
+mysql> select article.name as 'articles by user3' ,comment.text from article join user join comment on user.id=article.userId and article.id=comment.article_id and user.name='user3';
++-------------------+---------------+
+| articles by user3 | text          |
++-------------------+---------------+
+| aam aadmi party   | add comment 3 |
+| women empowermnt  | add comment 8 |
++-------------------+---------------+
+2 rows in set (0.00 sec)
+
+//Write a query to select all articles which do not have any comments
+
+mysql> select article.name as 'articles without comment' from article left join comment on article.id=comment.article_id where isnull(comment.text);
++--------------------------+
+| articles without comment |
++--------------------------+
+| rbi cut rates            |
+| cheaper drugs            |
+| samsung gears up wat     |
+| sensex                   |
+| techbuzz                 |
++--------------------------+
+5 rows in set (0.00 sec)
+
+//Write a query to select article which has maximum comments
+
+mysql> select article.name ,count(*) as "maximum" from article join comment on article.id=comment.article_id group by article_id having maximum = (select  count(*) as max  from comment  group by comment.article_id order by max  desc limit 1);
++--------------+---------+
+| name         | maximum |
++--------------+---------+
+| health sectr |       3 |
++--------------+---------+
+1 row in set (0.00 sec)
+
+//Write a query to select article which does not have more than one comment by the same user 
+
+mysql> select article.name from article join comment on comment.article_id=article.id  group by comment.article_id having count(distinct user_id)=count(user_id);
++------------------+
+| name             |
++------------------+
+| aam aadmi party  |
+| apple smartphns  |
+| moonson session  |
+| women empowermnt |
++------------------+
+4 rows in set (0.01 sec)
+
+// using left join
+mysql>select article.name from comment left join article  on comment.article_id=article.id  group by comment.article_id having count(distinct user_id)=count(user_id) ;
++------------------+
+| name             |
++------------------+
+| aam aadmi party  |
+| apple smartphns  |
+| moonson session  |
+| women empowermnt |
++------------------+
+4 rows in set (0.00 sec)
+

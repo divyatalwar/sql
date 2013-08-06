@@ -1,0 +1,203 @@
+mysql> create table user( id smallint not null,
+    ->name varchar(20) not null,type  enum('admin','normal') DEFAULT 'normal', PRIMARY KEY(id));
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> show columns from user;
++-------+------------------------+------+-----+---------+-------+
+| Field | Type                   | Null | Key | Default | Extra |
++-------+------------------------+------+-----+---------+-------+
+| id    | smallint(6)            | NO   | PRI | NULL    |       |
+| name  | varchar(20)            | NO   |     | NULL    |       |
+| type  | enum('admin','normal') | YES  |     | normal  |       |
++-------+------------------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> create table category( id  smallint not null , name varchar(20) not null,PRIMARY KEY(id),UNIQUE(name));
+Query OK, 0 rows affected (0.10 sec)
+
+mysql> show columns from category;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| id    | smallint(6) | NO   | PRI | NULL    |       |
+| name  | varchar(20) | NO   | UNI | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+
+mysql> create table article( id smallint not null,name varchar(20) not null,userId smallint not null ,categoryId smallint not null, PRIMARY KEY(id),FOREIGN KEY(userId) REFERENCES user(id) ,FOREIGN KEY(categoryId) REFERENCES category(id));
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> show columns from article;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| id         | smallint(6) | NO   | PRI | NULL    |       |
+| name       | varchar(20) | NO   |     | NULL    |       |
+| userId     | smallint(6) | NO   | MUL | NULL    |       |
+| categoryId | smallint(6) | NO   | MUL | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> create table comment(id smallint not null,user_id smallint not null,article_id smallint not null,text  varchar(20),PRIMARY KEY(id),FOREIGN KEY(user_id) REFERENCES user(id), FOREIGN KEY(article_id) REFERENCES article(id)); 
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> show columns from comment;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| id         | smallint(6) | NO   | PRI | NULL    |       |
+| user_id    | smallint(6) | NO   | MUL | NULL    |       |
+| article_id | smallint(6) | NO   | MUL | NULL    |       |
+| text       | varchar(20) | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+
+mysql> insert into user values(002,'user1',2), (004,'user2',2), (005,'user3',2), (006,'user4',1), (007,'user5',1)
+Query OK, 5 rows affected (0.03 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+mysql> select * from user;
++----+-------+--------+
+| id | name  | type   |
++----+-------+--------+
+|  2 | user1 | normal |
+|  4 | user2 | normal |
+|  5 | user3 | normal |
+|  6 | user4 | admin  |
+|  7 | user5 | admin  |
++----+-------+--------+
+5 rows in set (0.00 sec)
+
+
+
+mysql> insert into category values(1,'education'),
+    -> (2,'technology'),
+    -> (3,'finance'),
+    -> (4,'health'),
+    -> (5,'politics');
+Query OK, 5 rows affected (0.04 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select * from category;
++----+------------+
+| id | name       |
++----+------------+
+|  1 | education  |
+|  3 | finance    |
+|  4 | health     |
+|  5 | politics   |
+|  2 | technology |
++----+------------+
+5 rows in set (0.00 sec)
+
+
+mysql> insert into article values(1,'knowledge',2,1), (2,'rbi cut rates',4,3), (3,'cheaper drugs',6,4), (4,'aam aadmi party',5,5), (5,'samsung gears up watchkart',2,2), (6,'health sectr',4,4),(7,'sensex',7,3),(8,'apple smartphns',6,2),(9,'moonson session ',7,5),(10,'women empowermnt',5,1),(11,'techbuzz',6,2); 
+Query OK, 11 rows affected, 1 warning (0.05 sec)
+
+
+mysql> select * from article;
++----+----------------------+--------+------------+
+| id | name                 | userId | categoryId |
++----+----------------------+--------+------------+
+|  1 | knowledge            |      2 |          1 |
+|  2 | rbi cut rates        |      4 |          3 |
+|  3 | cheaper drugs        |      6 |          4 |
+|  4 | aam aadmi party      |      5 |          5 |
+|  5 | samsung gears up wat |      2 |          2 |
+|  6 | health sectr         |      4 |          4 |
+|  7 | sensex               |      7 |          3 |
+|  8 | apple smartphns      |      6 |          2 |
+|  9 | moonson session      |      7 |          5 |
+| 10 | women empowermnt     |      5 |          1 |
+| 11 | techbuzz             |      6 |          2 |
++----+----------------------+--------+------------+
+11 rows in set (0.00 sec)
+
+mysql>  insert into comment values(1,2,1,'add comment 1'), (2,4,6,'add comment 2'),(3,5,4,'add comment 3'),(4,6,8,'add comment 4'),(5,7,9,'add comment 5'),(6,2,1,'add comment 6'),(7,4,6,'add comment 7'),(8,5,10,'add comment 8'),(9,5,6,'add comment 9'),(10,7,8,'add comment 10');
+Query OK, 10 rows affected (0.15 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+
+mysql> select * from comment;
++----+---------+------------+----------------+
+| id | user_id | article_id | text           |
++----+---------+------------+----------------+
+|  1 |       2 |          1 | add comment 1  |
+|  2 |       4 |          6 | add comment 2  |
+|  3 |       5 |          4 | add comment 3  |
+|  4 |       6 |          8 | add comment 4  |
+|  5 |       7 |          9 | add comment 5  |
+|  6 |       2 |          1 | add comment 6  |
+|  7 |       4 |          6 | add comment 7  |
+|  8 |       5 |         10 | add comment 8  |
+|  9 |       5 |          6 | add comment 9  |
+| 10 |       7 |          8 | add comment 10 |
++----+---------+------------+----------------+
+10 rows in set (0.00 sec)
+
+
+
+
+mysql> select article.name from article join user on article.userId=user.id and user.name='user3';
++------------------+
+| name             |
++------------------+
+| aam aadmi party  |
+| women empowermnt |
++------------------+
+2 rows in set (0.00 sec)
+
+
+mysql> select article.name as 'articles by user3' ,comment.text from article join user join comment on user.id=article.userId and article.id=comment.article_id and user.name='user3';
++-------------------+---------------+
+| articles by user3 | text          |
++-------------------+---------------+
+| aam aadmi party   | add comment 3 |
+| women empowermnt  | add comment 8 |
++-------------------+---------------+
+2 rows in set (0.00 sec)
+
+
+mysql> select article.name as 'articles without comment' from article left join comment on article.id=comment.article_id where isnull(comment.text);
++--------------------------+
+| articles without comment |
++--------------------------+
+| rbi cut rates            |
+| cheaper drugs            |
+| samsung gears up wat     |
+| sensex                   |
+| techbuzz                 |
++--------------------------+
+5 rows in set (0.00 sec)
+
+mysql> select article.name ,count(*) as "maximum" from article join comment on article.id=comment.article_id group by article_id having maximum = (select  count(*) as max  from comment  group by comment.article_id order by max  desc limit 1);
++--------------+---------+
+| name         | maximum |
++--------------+---------+
+| health sectr |       3 |
++--------------+---------+
+1 row in set (0.00 sec)
+
+mysql> select article.name from article join comment on comment.article_id=article.id  group by comment.article_id having count(distinct user_id)=count(user_id);
++------------------+
+| name             |
++------------------+
+| aam aadmi party  |
+| apple smartphns  |
+| moonson session  |
+| women empowermnt |
++------------------+
+4 rows in set (0.01 sec)
+
+ select article.name from comment left join article  on comment.article_id=article.id  group by comment.article_id having count(distinct user_id)=count(user_id) ;
++------------------+
+| name             |
++------------------+
+| aam aadmi party  |
+| apple smartphns  |
+| moonson session  |
+| women empowermnt |
++------------------+
+4 rows in set (0.00 sec)
+
