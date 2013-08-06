@@ -1,0 +1,28 @@
+//backup in sampleq.sql
+nishant@Nishant-PC:~$ mysqldump -u root -p sample > sampleq.sql
+Enter password: 
+nishant@Nishant-PC:~$ mysql -u root -p -h localhost
+Enter password: 
+mysql> create database restore;
+Query OK, 1 row affected (0.00 sec)
+mysql>exit;
+bye
+
+//restoring
+nishant@Nishant-PC:~$ mysql -u root -p restore < sampleq.sql
+Enter password: 
+mysql> use restore;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> show tables;
++-------------------+
+| Tables_in_restore |
++-------------------+
+| ad                |
++-------------------+
+1 row in set (0.00 sec)
+
+
+
