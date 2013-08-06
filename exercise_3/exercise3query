@@ -58,7 +58,7 @@ mysql> select article.name from article join comment on comment.article_id=artic
 4 rows in set (0.01 sec)
 
 // using left join
-mysql>select article.name from comment left join article  on comment.article_id=article.id  group by comment.article_id having count(distinct user_id)=count(user_id) ;
+mysql> select name  from article left join (select comment.article_id from article, comment where article.id = comment.article_id group by comment.article_id having  count(distinct user_id)=count(user_id)) as virtual_article on article.id = virtual_article.article_id where virtual_article.article_id is not null;
 +------------------+
 | name             |
 +------------------+
