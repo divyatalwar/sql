@@ -143,7 +143,7 @@ mysql> select distinct branch from Holdings where title in (select Title from Ti
 3 rows in set (0.00 sec)
 
 
-mysql> select distinct  Holdings.branch from Holdings JOIN Titles  WHERE Holdings.title = Titles.title AND Author = 'Ann Brown';
+mysql> select distinct  Holdings.branch from Holdings JOIN Titles  on Holdings.title = Titles.title AND Author = 'Ann Brown';
 +--------+
 | branch |
 +--------+
