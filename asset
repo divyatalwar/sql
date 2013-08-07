@@ -1,0 +1,209 @@
+mysql> create database ASSET;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> use ASSET;
+Database changed
+mysql> create table person(id tinyint unsigned null, name varchar(20) not null,primary key(id));
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> show columns from person;
++-------+---------------------+------+-----+---------+-------+
+| Field | Type                | Null | Key | Default | Extra |
++-------+---------------------+------+-----+---------+-------+
+| id    | tinyint(3) unsigned | NO   | PRI | 0       |       |
+| name  | varchar(20)         | NO   |     | NULL    |       |
++-------+---------------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> insert into person values(1,'alice'),
+     > (2,'bob'),
+     > (3,'user1'),
+     > (4,'user4'); 
+Query OK, 4 rows affected (0.07 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select * from person;
++----+-------+
+| id | name  |
++----+-------+
+|  1 | alice |
+|  2 | bob   |
+|  3 | user1 |
+|  4 | user4 |
++----+-------+
+4 rows in set (0.00 sec)
+
+mysql> create table product(id tinyint unsigned not null,category enum('laptop','iphone','ipad','projector','modem','printer','router','mouse'),name varchar(20) not null,purchaseYear date ,warranty tinyint unsigned not null,status enum('assigned','unassigned','public','repair'),assignedTo tinyint unsigned not null, primary key(id), foreign key (assignedTo) references person(id));
+Query OK, 0 rows affected (0.13 sec)
+
+mysql>show columns from product;
+
+---------------+------+-----+---------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+
+| Field        | Type                                                                          | Null | Key | Default | Extra |
++--------------+-------------------------------------------------------------------------------+------+-----+---------+-------+
+| id           | tinyint(3) unsigned                                                           | NO   | PRI | NULL    |       |
+| category     | enum('laptop','iphone','ipad','projector','modem','printer','router','mouse') | YES  |     | NULL    |       |
+| name         | varchar(20)                                                                   | NO   |     | NULL    |       |
+| purchaseYear | date                                                                          | YES  |     | NULL    |       |
+| warranty     | tinyint(3) unsigned                                                           | NO   |     | NULL    |       |
+| status       | enum('assigned','unassigned','public','repair')                               | YES  |     | NULL    |       |
+| assignedTo   | tinyint(3) unsigned                                                           | YES  | MUL | NULL    |       |
++--------------+-------------------------------------------------------------------------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> select * from product;
++----+-----------+-------------+--------------+----------+------------+------------+
+| id | category  | name        | purchaseYear | warranty | status     | assignedTo |
++----+-----------+-------------+--------------+----------+------------+------------+
+|  1 | laptop    | laptop A    | 2011-01-01   |        1 | assigned   |          1 |
+|  2 | laptop    | laptop B    | 2011-01-01   |        1 | unassigned |       NULL |
+|  3 | laptop    | laptop N1   | 2013-08-01   |        2 | unassigned |       NULL |
+|  4 | laptop    | laptop N2   | 2013-08-01   |        2 | unassigned |       NULL |
+|  5 | iphone    | iphone A    | 2011-01-01   |        2 | assigned   |          1 |
+|  6 | iphone    | iphone B    | 2011-01-01   |        2 | assigned   |          2 |
+|  7 | projector | projector A | 2011-08-15   |        4 | public     |       NULL |
+|  8 | printer   | printer A   | 2011-08-15   |        4 | public     |       NULL |
+|  9 | printer   | printer B   | 2011-09-10   |        4 | unassigned |       NULL |
+| 10 | ipad      | ipad A      | 2011-01-10   |        1 | repair     |          3 |
+| 11 | mouse     | mouse C     | 2011-01-10   |        2 | repair     |          4 |
+| 12 | mouse     | mouse A     | 2011-01-10   |        2 | assigned   |          1 |
+| 13 | mouse     | mouse A     | 2011-01-10   |        2 | assigned   |          2 |
++----+-----------+-------------+--------------+----------+------------+------------+
+13 rows in set (0.00 sec)
+
+mysql> show columns from assignment;
++--------------+---------------------+------+-----+---------+-------+
+| Field        | Type                | Null | Key | Default | Extra |
++--------------+---------------------+------+-----+---------+-------+
+| id           | tinyint(4)          | NO   | PRI | NULL    |       |
+| person_id    | tinyint(3) unsigned | NO   | MUL | NULL    |       |
+| product_id   | tinyint(3) unsigned | NO   | MUL | NULL    |       |
+| assignedfrom | date                | YES  |     | NULL    |       |
+| assignedTill | date                | YES  |     | NULL    |       |
++--------------+---------------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> select * from assignment;
++----+-----------+------------+--------------+--------------+
+| id | person_id | product_id | assignedfrom | assignedTill |
++----+-----------+------------+--------------+--------------+
+|  1 |         2 |          1 | 2012-01-01   | 2013-12-31   |
+|  2 |         1 |          5 | 2011-04-01   | 2013-12-31   |
+|  3 |         2 |          6 | 2011-01-01   | 2013-12-31   |
+|  4 |         1 |          1 | 2011-01-01   | 2011-12-31   |
+|  5 |         2 |          2 | 2011-01-01   | 2011-12-31   |
++----+-----------+------------+--------------+--------------+
+5 rows in set (0.00 sec)
+
+
+mysql> create table publicArticles(id tinyint unsigned not null,product_id tinyint unsigned not null,location text,primary key(id),foreign key(product_id) references product(id));
+Query OK, 0 rows affected (0.19 sec)
+
+mysql> select * from publicArticles;
++----+------------+-----------------+
+| id | product_id | location        |
++----+------------+-----------------+
+|  1 |          7 | conference room |
+|  2 |          8 | computer room   |
++----+------------+-----------------+
+2 rows in set (0.00 sec)
+
+
+mysql> create table repairArticles(id tinyint unsigned not null,product_id tinyint unsigned not null,cost int(5),defect varchar(20),purchased date,warranty int(2),primary key(id),foreign key(product_id) references product(id));
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> insert into repairArticles values(1,10,5000,'display','2011-01-10',1);Query OK, 1 row affected (0.04 sec)
+
+mysql> insert into repairArticles values(2,11,4000,'sensation','2011-01-10',2);Query OK, 1 row affected (0.04 sec)
+
+mysql> select * from repairArticles;
++----+------------+------+-----------+------------+----------+
+| id | product_id | cost | defect    | purchased  | warranty |
++----+------------+------+-----------+------------+----------+
+|  1 |         10 | 5000 | display   | 2011-01-10 |        1 |
+|  2 |         11 | 4000 | sensation | 2011-01-10 |        2 |
++----+------------+------+-----------+------------+----------+
+2 rows in set (0.00 sec)
+
+
+//query1
+mysql> select person.name ,count(person_id) as maximum_alloted from person join assignment on assignment.person_id=person.id group by assignment.person_id having max_alloted in (select max(cnt) from ( select count(assignment.person_id) as cnt  from person join assignment on assignment.person_id=person.id  group by assignment.person_id) as d);
++------+-----------------+
+| name | maximum_alloted |
++------+-----------------+
+| bob  |    3            |
++------+-----------------+
+1 row in set (0.00 sec)
+
+
+//query2
+mysql> select person.name ,count(person_id) as maximum_alloted from person join assignment on assignment.person_id=person.id where year(assignedTill)=year(curdate()) group by assignment.person_id having maximum_alloted in (select max(cnt) from ( select count(assignment.person_id) as cnt  from person join assignment on assignment.person_id=person.id where year(assignedTill)=year(curdate()) group by assignment.person_id) as d);
++------+-----------------+
+| name | maximum_alloted |
++------+-----------------+
+| bob  |    2            | 
++------+-----------------+
+1 row in set (0.00 sec)
+
+
+//query3
+mysql> select person.name,concat(assignedFrom,' to ',assignedTill) as period from assignment join person on assignment.person_id=person.id and assignment.product_id =(select id from product where name ='laptop A') ;
++-------+------------------------------------------+
+| name  | period                                   |
++-------+------------------------------------------+
+| bob   | 2012-01-01 to 2013-12-31                 |
+| alice | 2011-01-01 to 2011-12-31                 |
++-------+------------------------------------------+
+2 rows in set (0.00 sec)
+
+//query4
+mysql> select product.name from product where product.id in ( select product.id from product where status=2 union select assignment.product_id from assignment where product_id not in (select product_id from assignment  where assignedTill=curdate()));
+
++-----------+
+| name      |
++-----------+
+| laptop B  |
+| laptop N1 |
+| laptop N2 |
+| printer B |
++-----------+
+4 rows in set (0.00 sec)
+
+
+//query5
+mysql> select product.name from product where product.id in (select assignment.product_id from assignment where year(assignedTill)=year(curdate()) and assignment.person_id in (select id from person where name='bob'));
++----------+
+| name     |
++----------+
+| laptop A |
+| iphone B |
++----------+
+2 rows in set (0.00 sec)
+
+//query6
+mysql> select product.id ,product.name from product where date_add(purchaseYear, interval warranty year) < curdate();
++----+----------+
+| id | name     |
++----+----------+
+|  1 | laptop A |
+|  2 | laptop B |
+|  5 | iphone A |
+|  6 | iphone B |
+| 10 | ipad A   |
+| 11 | mouse C  |
+| 12 | mouse A  |
+| 13 | mouse B  |
++----+----------+
+8 rows in set (0.00 sec)
+
+//query7
+mysql> select person.name from person where person.id not in (select distinct assignment.person_id from assignment where year(assignedTill) >=  year(curdate()));
++-------+
+| name  |
++-------+
+| user1 |
+| user4 |
++-------+
+2 rows in set (0.00 sec)
+
+
