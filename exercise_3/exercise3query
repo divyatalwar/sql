@@ -46,26 +46,38 @@ mysql> select article.name ,count(*) as "maximum" from article join comment on a
 
 //Write a query to select article which does not have more than one comment by the same user 
 
-mysql> select article.name from article join comment on comment.article_id=article.id  group by comment.article_id having count(distinct user_id)=count(user_id);
-+------------------+
-| name             |
-+------------------+
-| aam aadmi party  |
-| apple smartphns  |
-| moonson session  |
-| women empowermnt |
-+------------------+
-4 rows in set (0.01 sec)
+mysql> select article.name from article where article.id not in(select comment.article_id from comment join article on comment.article_id=article.id group by article.id having count(distinct comment.user_id)<> count(comment.user_id));
++----------------------+
+| name                 |
++----------------------+
+| rbi cut rates        |
+| cheaper drugs        |
+| aam aadmi party      |
+| samsung gears up wat |
+| sensex               |
+| apple smartphns      |
+| moonson session      |
+| women empowermnt     |
+| techbuzz             |
++----------------------+
+9 rows in set (0.01 sec)
+
 
 // using left join
-mysql> select name  from article left join (select comment.article_id from article, comment where article.id = comment.article_id group by comment.article_id having  count(distinct user_id)=count(user_id)) as virtual_article on article.id = virtual_article.article_id where virtual_article.article_id is not null;
-+------------------+
-| name             |
-+------------------+
-| aam aadmi party  |
-| apple smartphns  |
-| moonson session  |
-| women empowermnt |
-+------------------+
-4 rows in set (0.00 sec)
+mysql> select article.name from article left join comment on comment.article_id=article.id  group by article.id  having count(distinct user_id)=count(user_id) ; 
++----------------------+
+| name                 |
++----------------------+
+| rbi cut rates        |
+| cheaper drugs        |
+| aam aadmi party      |
+| samsung gears up wat |
+| sensex               |
+| apple smartphns      |
+| moonson session      |
+| women empowermnt     |
+| techbuzz             |
++----------------------+
+9 rows in set (0.00 sec)
+
 
