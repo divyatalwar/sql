@@ -68,7 +68,7 @@ mysql> select * from products;
 +----+-----------+------------+------------------+----------+------------+
 13 rows in set (0.00 sec)
 
- CREATE TABLE assignments(id int AUTO_INCREMENT,products_id int,assigned_to_id int,assigned_to_type enum('employee','location'),from_at DATE,till_at DATE,PRIMARY KEY (id),FOREIGN KEY (products_id) REFERENCES products(id));
+ CREATE TABLE assignments(id int AUTO_INCREMENT,product_id int,assigned_to_id int,assigned_to_type enum('employee','location'),from_at DATE,till_at DATE,PRIMARY KEY (id),FOREIGN KEY (product_id) REFERENCES products(id));
 Query OK, 0 rows affected (0.14 sec)
 
 
@@ -77,7 +77,7 @@ mysql> show columns from assignments;
 | Field            | Type                        | Null | Key | Default | Extra          |
 +------------------+-----------------------------+------+-----+---------+----------------+
 | id               | int(11)                     | NO   | PRI | NULL    | auto_increment |
-| products_id      | int(11)                     | YES  | MUL | NULL    |                |
+| product_id       | int(11)                     | YES  | MUL | NULL    |                |
 | assigned_to_id   | int(11)                     | YES  |     | NULL    |                |
 | assigned_to_type | enum('employee','location') | YES  |     | NULL    |                |
 | from_at          | date                        | YES  |     | NULL    |                |
@@ -85,35 +85,35 @@ mysql> show columns from assignments;
 +------------------+-----------------------------+------+-----+---------+----------------+
 6 rows in set (0.00 sec)
 
-
-mysql>INSERT INTO assignments(products_id,assigned_to_id,assigned_to_type,from_at,till_at) values (1,2,'1','2011-01-01','2013-12-31'),(5,1,1,'2011-04-01','2013-12-31'),(6,2,1,'2011-01-01','2013-12-31'),(1,1,1,'2011-01-01','2011-12-31'),(2,2,1,'2011-01-01','2011-12-31'),(7,1,2,'2011-08-15','2013-12-31'),(8,1,2,'2011-08-15','2013-12-31');
+mysql> INSERT INTO assignments(product_id,assigned_to_id,assigned_to_type,from_at,till_at) values (1,2,'1','2011-01-01',null),(5,1,1,'2011-04-01',null),(6,2,1,'2011-01-01',null),(1,1,1,'2011-01-01','2011-12-31'),(2,2,1,'2011-01-01','2011-12-31'),(7,1,2,'2011-08-15',null),(8,1,2,'2011-08-15',null);Query OK, 7 rows affected (0.05 sec)
+Records: 7  Duplicates: 0  Warnings: 0
 
 mysql> select * from assignments;
-+----+-------------+----------------+------------------+------------+------------+
-| id | products_id | assigned_to_id | assigned_to_type | from_at    | till_at    |
-+----+-------------+----------------+------------------+------------+------------+
-|  1 |           1 |              2 | employee         | 2011-01-01 | 2013-12-31 |
-|  2 |           5 |              1 | employee         | 2011-04-01 | 2013-12-31 |
-|  3 |           6 |              2 | employee         | 2011-01-01 | 2013-12-31 |
-|  4 |           1 |              1 | employee         | 2011-01-01 | 2011-12-31 |
-|  5 |           2 |              2 | employee         | 2011-01-01 | 2011-12-31 |
-|  6 |           7 |              1 | location         | 2011-08-15 | 2013-12-31 |
-|  7 |           8 |              1 | location         | 2011-08-15 | 2013-12-31 |
-+----+-------------+----------------+------------------+------------+------------+
++----+------------+----------------+------------------+------------+------------+
+| id | product_id | assigned_to_id | assigned_to_type | from_at    | till_at    |
++----+------------+----------------+------------------+------------+------------+
+|  1 |          1 |              2 | employee         | 2011-01-01 | NULL       |
+|  2 |          5 |              1 | employee         | 2011-04-01 | NULL       |
+|  3 |          6 |              2 | employee         | 2011-01-01 | NULL       |
+|  4 |          1 |              1 | employee         | 2011-01-01 | 2011-12-31 |
+|  5 |          2 |              2 | employee         | 2011-01-01 | 2011-12-31 |
+|  6 |          7 |              1 | location         | 2011-08-15 | NULL       |
+|  7 |          8 |              1 | location         | 2011-08-15 | NULL       |
++----+------------+----------------+------------------+------------+------------+
 7 rows in set (0.00 sec)
 
 
 
-mysql> create table repairArticles(id int auto_increment,products_id int, cost int,defect varchar(255),primary key(id),foreign key(products_id) references products(id));
+mysql> create table repairArticles(id int auto_increment,product_id int, cost int,defect varchar(255),primary key(id),foreign key(product_id) references products(id));
 Query OK, 0 rows affected (0.22 sec)
 
-mysql> insert into repairArticles(products_id,cost,defect) values(10,5000,'display'),(11,4000,'sensation');
+mysql> insert into repairArticles(product_id,cost,defect) values(10,5000,'display'),(11,4000,'sensation');
 Query OK, 2 rows affected (0.03 sec)
 Records: 2  Duplicates: 0  Warnings: 0
 
 mysql> select * from repairArticles;
 +----+-------------+------+-----------+
-| id | products_id | cost | defect    |
+| id | product_id | cost | defect    |
 +----+-------------+------+-----------+
 |  1 |          10 | 5000 | display   |
 |  2 |          11 | 4000 | sensation |
@@ -139,7 +139,7 @@ Query OK, 1 row affected (0.03 sec)
 
 
 //query1
-mysql> select persons.name ,count(assignments.assigned_to_id) as max_alloted from persons join assignments on assignments.assigned_to_id=persons.id AND assignments.assigned_to_type=1 group by assignments.assigned_to_id having max_alloted in (select max(cnt) from ( select count(assignments.assigned_to_id) as cnt  from persons join assignments on assignments.assigned_to_id=persons.id and assignments.assigned_to_type=1 group by assignments.assigned_to_id) as d);
+mysql> select persons.name ,count(assignments.assigned_to_id) as max_alloted from persons join assignments on assignments.assigned_to_id=persons.id AND assignments.assigned_to_type=1 group by assignments.assigned_to_id having max_alloted = ( select count(*) as total from persons join assignments on assignments.assigned_to_id=persons.id and assignments.assigned_to_type=1 group by assignments.assigned_to_id order by total desc limit 1);
 +------+-------------+
 | name | max_alloted |
 +------+-------------+
@@ -147,8 +147,9 @@ mysql> select persons.name ,count(assignments.assigned_to_id) as max_alloted fro
 +------+-------------+
 1 row in set (0.00 sec)
 
+
 //query2
-mysql> select persons.name ,count(assigned_to_id) as maximum_alloted from persons join assignments on assignments.assigned_to_id=persons.id where year(till_at)=year(curdate()) and assignments.assigned_to_type =1 group by assignments.assigned_to_id having maximum_alloted in (select max(cnt) from ( select count(assignments.assigned_to_id) as cnt  from persons join assignments on assignments.assigned_to_id=persons.id where year(till_at)=year(curdate()) and assignments.assigned_to_type =1 group by assignments.assigned_to_id) as d);
+mysql> select persons.name ,count(assigned_to_id) as maximum_alloted from persons join assignments on assignments.assigned_to_id=persons.id where assignments.till_at is null  and assignments.assigned_to_type =1 group by assignments.assigned_to_id having maximum_alloted = ( select count(*) as total  from persons join assignments on assignments.assigned_to_id=persons.id where assignments.till_at is null and assignments.assigned_to_type =1 group by assignments.assigned_to_id order by total desc limit 1);
 +------+-----------------+
 | name | maximum_alloted |
 +------+-----------------+
@@ -157,17 +158,17 @@ mysql> select persons.name ,count(assigned_to_id) as maximum_alloted from person
 1 row in set (0.00 sec)
 
 //query3
-mysql> select persons.name,concat(from_at,' to ',till_at) as period from assignments join persons on assignments.assigned_to_id=persons.id where assignments.assigned_to_type=1 and assignments.products_id =(select id from products where name ='laptopA') ;
+mysql> select persons.name , concat(  from_at ,' to ', if(till_at, till_at , curdate())) as period from assignments join persons on assignments.assigned_to_id=persons.id join products on products.id=assignments.product_id  where assignments.assigned_to_type=1 and assignments.product_id =1;
 +-------+--------------------------+
 | name  | period                   |
 +-------+--------------------------+
-| Bob   | 2011-01-01 to 2013-12-31 |
+| Bob   | 2011-01-01 to 2013-08-13 |
 | Alice | 2011-01-01 to 2011-12-31 |
 +-------+--------------------------+
 2 rows in set (0.00 sec)
 
 //query4
-mysql>  select products.name from products where products.id in ( select products.id from products where status=2)
+mysql>  select products.name from products where status=2
     -> ;
 +----------+
 | name     |
@@ -179,11 +180,8 @@ mysql>  select products.name from products where products.id in ( select product
 +----------+
 4 rows in set (0.00 sec)
 
-
-
-
 //query5
-mysql> select products.name from products where products.id in (select assignments.products_id from assignments where  year(till_at)=year(curdate()) and assignments.assigned_to_type=1 and assignments.assigned_to_id in (select id from persons where name='bob'));
+mysql> select products.name from products join assignments on assignments.product_id=products.id join persons on assignments.assigned_to_id =persons.id where persons.name='bob' and assignments.till_at  is null;
 +---------+
 | name    |
 +---------+
@@ -191,6 +189,7 @@ mysql> select products.name from products where products.id in (select assignmen
 | iphoneB |
 +---------+
 2 rows in set (0.00 sec)
+
 
 
 //query6
@@ -210,7 +209,9 @@ mysql> select products.id ,products.name from products where date_add(date_of_pu
 8 rows in set (0.00 sec)
 
 //query7
-mysql> select persons.name from persons where persons.id not in (select distinct assignments.assigned_to_id from assignments where year(till_at) >=  year(curdate()) and assignments.assigned_to_type =1);
+
+mysql> select persons.name from persons left join assignments on persons.id=assignments.assigned_to_id where assignments.product_id is null
+    -> ;
 +-------+
 | name  |
 +-------+
@@ -218,7 +219,4 @@ mysql> select persons.name from persons where persons.id not in (select distinct
 | user4 |
 +-------+
 2 rows in set (0.00 sec)
-
-
-
 
