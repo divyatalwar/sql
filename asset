@@ -158,7 +158,7 @@ mysql> select persons.name ,count(assigned_to_id) as maximum_alloted from person
 1 row in set (0.00 sec)
 
 //query3
-mysql> select persons.name , concat(  from_at ,' to ', if(till_at, till_at , curdate())) as period from assignments join persons on assignments.assigned_to_id=persons.id join products on products.id=assignments.product_id  where assignments.assigned_to_type=1 and assignments.product_id =1;
+mysql> select persons.name , concat(  from_at ,' to ', if(till_at, till_at , "'still assigned'")) as period from assignments join persons on assignments.assigned_to_id=persons.id join products on products.id=assignments.product_id  where assignments.assigned_to_type=1 and assignments.product_id =1;
 +-------+--------------------------+
 | name  | period                   |
 +-------+--------------------------+
@@ -181,7 +181,7 @@ mysql>  select products.name from products where status=2
 4 rows in set (0.00 sec)
 
 //query5
-mysql> select products.name from products join assignments on assignments.product_id=products.id join persons on assignments.assigned_to_id =persons.id where persons.name='bob' and assignments.till_at  is null;
+mysql> select products.name from products join assignments on assignments.product_id=products.id join persons on assignments.assigned_to_id =persons.id where persons.name='bob' and assignments.till_at  is null and assignments.assigned_to_type=1;
 +---------+
 | name    |
 +---------+
@@ -189,9 +189,6 @@ mysql> select products.name from products join assignments on assignments.produc
 | iphoneB |
 +---------+
 2 rows in set (0.00 sec)
-
-
-
 //query6
 mysql> select products.id ,products.name from products where date_add(date_of_purchase, interval warranty year) < curdate();
 +----+----------+
@@ -210,7 +207,7 @@ mysql> select products.id ,products.name from products where date_add(date_of_pu
 
 //query7
 
-mysql> select persons.name from persons left join assignments on persons.id=assignments.assigned_to_id where assignments.product_id is null
+mysql> select persons.name from persons left join assignments on persons.id=assignments.assigned_to_id and assignments.till_at is null and assignments.assigned_to_type =1 where assignments.from_at is null
     -> ;
 +-------+
 | name  |
@@ -219,4 +216,8 @@ mysql> select persons.name from persons left join assignments on persons.id=assi
 | user4 |
 +-------+
 2 rows in set (0.00 sec)
+
+
+
+
 
