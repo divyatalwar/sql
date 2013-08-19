@@ -241,7 +241,10 @@ mysql> select distinct(city),count(email) as "people who responded" from email_s
 5 rows in set (0.00 sec)
 
 //query3
-mysql> select distinct(city) from email_subscribers group by city having count(email) = (select count(email) as maximum from email_subscribers group by  city order by maximum desc limit 1);
+mysql> SELECT COUNT(*) INTO @max FROM email_subscribers GROUP BY city ORDER BY COUNT(*) DESC LIMIT 1;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT city FROM email_subscribers GROUP BY city HAVING COUNT(*) = @max;
 +----------+
 | city     |
 +----------+
