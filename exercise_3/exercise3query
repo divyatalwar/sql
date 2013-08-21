@@ -1,6 +1,6 @@
 //select all articles whose author is user3.
 
-mysql> select article.name from article join user on article.userId=user.id and user.name='user3';
+mysql> select articles.name from articles join users on articles.user_id=user.id and users.name='user3';
 +------------------+
 | name             |
 +------------------+
@@ -11,18 +11,20 @@ mysql> select article.name from article join user on article.userId=user.id and 
 
 //For all the articles being selected above, select all the articles and also the comments associated with those articles in a single query
 
-mysql> select article.name as 'articles by user3' ,comment.text from article join user join comment on user.id=article.userId and article.id=comment.article_id and user.name='user3';
-+-------------------+---------------+
-| articles by user3 | text          |
-+-------------------+---------------+
-| aam aadmi party   | add comment 3 |
-| women empowermnt  | add comment 8 |
-+-------------------+---------------+
-2 rows in set (0.00 sec)
+mysql> select articles.name as 'articles by user3' ,comments.text from articles join users join comments on users.id=articles.user_id and articles.id=comments.article_id and users.name='user3';
++-------------------+----------------+
+| articles by user3 | text           |
++-------------------+----------------+
+| aam aadmi party   | add comment 3  |
+| aam aadmi party   | add comment 13 |
+| women empowermnt  | add comment 8  |
++-------------------+----------------+
+3 rows in set (0.01 sec)
+
 
 //Write a query to select all articles which do not have any comments
 
-mysql> select article.name as 'articles without comment' from article left join comment on article.id=comment.article_id where isnull(comment.text);
+mysql> select articles.name as 'articles without comment' from articles left join comments on articles.id=comments.article_id where isnull(comments.text);
 +--------------------------+
 | articles without comment |
 +--------------------------+
@@ -36,17 +38,20 @@ mysql> select article.name as 'articles without comment' from article left join 
 
 //Write a query to select article which has maximum comments
 
-mysql> select article.name ,count(*) as "maximum" from article join comment on article.id=comment.article_id group by article_id having maximum = (select  count(*) as max  from comment  group by comment.article_id order by max  desc limit 1);
+mysql> select  count(*) INTO @max  from comments  group by comments.article_id order by count(*) desc limit 1; 
+select articles.name ,count(*) as "maximum" from articles join comments on articles.id=comments.article_id group by article_id having maximum = @max;
 +--------------+---------+
 | name         | maximum |
 +--------------+---------+
+| knowledge    |       3 |
 | health sectr |       3 |
 +--------------+---------+
-1 row in set (0.00 sec)
+2 rows in set (0.00 sec)
+
 
 //Write a query to select article which does not have more than one comment by the same user 
 
-mysql> select article.name from article where article.id not in(select comment.article_id from comment join article on comment.article_id=article.id group by article.id having count(distinct comment.user_id)<> count(comment.user_id));
+mysql> select articles.name from articles where articles.id not in(select comments.article_id from comments join articles on comments.article_id=articles.id group by articles.id having count(distinct comments.user_id)<> count(comments.user_id));
 +----------------------+
 | name                 |
 +----------------------+
