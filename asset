@@ -158,7 +158,7 @@ mysql> select persons.name ,count(assigned_to_id) as maximum_alloted from person
 1 row in set (0.00 sec)
 
 //query3
-mysql> select persons.name , concat(  from_at ,' to ', if(till_at, till_at , "'still assigned'")) as period from assignments join persons on assignments.assigned_to_id=persons.id join products on products.id=assignments.product_id  where assignments.assigned_to_type=1 and assignments.product_id =1;
+mysql> select persons.name , concat(  from_at ,' to ', IFNULL(till_at , "'still assigned'")) as period from assignments join persons on assignments.assigned_to_id=persons.id join products on products.id=assignments.product_id  where assignments.assigned_to_type=1 and assignments.product_id =1;
 +-------+--------------------------+
 | name  | period                   |
 +-------+--------------------------+
