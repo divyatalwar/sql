@@ -141,7 +141,7 @@ mysql>  select distinct employees.name  from project_employees join projects on 
 
 
 //query2
-mysql> select employees.name from technologies join project_technologies on technologies.id =project_technologies.technology_id join project_employees on project_technologies.project_id = project_employees.project_id join employees on project_employees.employee_id = employees.id where technologies.name in ('html','javascript','ios') group by employees.id having count(technologies.name) >= 3;
+mysql> select employees.name from technologies join project_technologies on technologies.id =project_technologies.technology_id join project_employees on project_technologies.project_id = project_employees.project_id join employees on project_employees.employee_id = employees.id where technologies.name in ('html','javascript','ios') group by employees.id having count(distinct technologies.name) >= 3;
 +--------+
 | name   |
 +--------+
@@ -159,7 +159,9 @@ Empty set (0.01 sec)
 
 
 //query4
-mysql> select employees.name ,group_concat(project_employees.project_id) as projects from employees join project_employees on employees.id =project_employees.employee_id join projects on projects.id = project_employees.project_id join project_technologies on project_technologies.project_id =project_employees.project_id join technologies on technologies.id =project_technologies.technology_id  where technologies.name ='android' and status = 1 group by employees.id order by count(*) desc limit 1;
+
+select count(projects.name) into @max from projects join project_employees  on projects.id = project_employees.project_id join project_technologies on project_employees.project_id = project_technologies.project_id join technologies on project_technologies.technology_id = technologies.id where technologies.name = 'android' and status = 2
+mysql> select employees.name ,group_concat(project_employees.project_id) as projects from employees join project_employees on employees.id =project_employees.employee_id join projects on projects.id = project_employees.project_id join project_technologies on project_technologies.project_id =project_employees.project_id join technologies on technologies.id =project_technologies.technology_id  where technologies.name ='android' and status = 1 group by employees.id having count(project_employees.project_id) = @max;
 +--------+----------+
 | name   | projects |
 +--------+----------+
